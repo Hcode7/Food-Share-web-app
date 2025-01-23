@@ -1,0 +1,83 @@
+{% extends 'pages/base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+    <!-- Search Bar -->
+    <form method="get" class="form-inline mb-5">
+        <div class="input-group w-50 mx-auto">
+            <input name="search" value="{{ search }}" class="form-control" type="search" placeholder="Search for recipes..." aria-label="Search">
+            <div class="input-group-append">
+                <button class="btn btn-outline-success" type="submit">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Profile Header -->
+    <div class="profile-header mb-5">
+        <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+                <img src="{{ profile.img.url }}" class="rounded-circle mr-3" style="width: 80px; height: 80px; object-fit: cover;" alt="Profile Image">
+                <h2 class="mb-0">{{ profile.user.username }}</h2>
+            </div>
+            <button type="submit" class="btn btn-danger px-4">
+                <i class="fas fa-user-plus"></i> Follow
+            </button>
+        </div>
+    </div>
+
+    <!-- Food Grid -->
+    <div class="row">
+        {% for food in foods %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm hover-shadow">
+                    <a href="{% url 'food_detail' food.slug %}" class="food-image-link">
+                        <img src="{{ food.thumbnail.url }}" alt="{{ food.title }}" class="card-img-top" style="height: 200px; object-fit: cover;">
+                    </a>
+                    <div class="card-body">
+                        <div class="card-title">
+                            <a href="{% url 'food_detail' food.slug %}" class="text-decoration-none">
+                                <h4 class="text-dark mb-3">{{ food.title }}</h4>
+                            </a>
+                        </div>
+                        {% if profile.user == current_user %}
+                            <div class="d-flex justify-content-between mt-3">
+                                <a class="btn btn-danger btn-sm" href="{% url 'delete_food' food.slug %}">
+                                    <i class="fas fa-trash"></i> Delete
+                                </a>
+                                <a class="btn btn-primary btn-sm" href="{% url 'update_food' food.slug %}">
+                                    <i class="fas fa-edit"></i> Update
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .hover-shadow:hover {
+        transform: translateY(-5px);
+        transition: transform 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+    }
+    
+    .food-image-link {
+        overflow: hidden;
+        display: block;
+    }
+    
+    .food-image-link img {
+        transition: transform 0.3s ease;
+    }
+    
+    .food-image-link:hover img {
+        transform: scale(1.05);
+    }
+</style>
+
+{% endblock content %}

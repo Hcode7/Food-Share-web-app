@@ -1,0 +1,15 @@
+{% extends 'pages/base.html' %}
+
+{% block content %}
+
+<h3>Update your Food  😋</h3>
+<div class="update-form">
+    <form action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        {{ form_recipe.as_p }}
+        <button class="btn btn-warning btn-lg" type="submit">Update</button>
+    </form>
+</div>
+
+{% endblock content %}

@@ -1,0 +1,160 @@
+{% extends 'pages/base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        {% if food.img %}
+        <!-- Left Column - Image and Profile -->
+        <div class="col-lg-6 mb-4">
+            <!-- Profile Section -->
+            <div class="d-flex align-items-center mb-4">
+                <a href="{% url 'channel' food.user.username %}" class="text-decoration-none">
+                    <div class="d-flex align-items-center">
+                        <img src="{{ profile.img.url }}" alt="Profile Image" 
+                             class="rounded-circle me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                        <h5 class="mb-0 text-dark">{{ profile.user.username }}</h5>
+                    </div>
+                </a>
+            </div>
+            
+            <!-- Main Food Image -->
+            <div class="card border-0 shadow-sm">
+                <img src="{{ food.img.url }}" class="card-img-top img-fluid" alt="{{ food.title }}">
+            </div>
+        </div>
+
+        <!-- Right Column - Content -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h1 class="card-title display-6 mb-4">{{ food.title }}</h1>
+                    <h3 class="h4 text-primary mb-3">Story</h3>
+                    <p class="lead">{{ food.story|safe }}</p>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h2 class="display-6 mb-4">{{ food.title }}</h2>
+                    <h3 class="h4 text-primary mb-3">Story</h3>
+                    <p class="lead">{{ food.story|safe }}</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Recipe Section -->
+    <div class="card border-0 shadow-sm mt-5">
+        {% if recipe %}
+        <div class="card-body">
+            <h3 class="card-title mb-4">Recipe</h3>
+            
+            {% if recipe.is_premium %}
+            <div class="alert alert-warning">
+                <i class="bi bi-star-fill me-2"></i>
+                This is a premium recipe. Please subscribe to view the details.
+            </div>
+
+            <!-- Media Section -->
+            <div class="row mb-4">
+                <!-- Video Column -->
+                {% if recipe.video %}
+                <div class="col-md-6 mb-4 mb-md-0">
+                    <div class="ratio ratio-16x9 rounded overflow-hidden shadow-sm">
+                        <video controls class="object-fit-cover w-100">
+                                <source src="{{ recipe.video.url }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    <small class="text-muted mt-2 d-block">Watch the recipe preparation video</small>
+                </div>
+                {% endif %}
+                {% if recipe.img %}
+                <!-- Image Column -->
+                <div class="col-md-6">
+                    <div class="rounded overflow-hidden shadow-sm">
+                        <img src="{{ recipe.image.url }}" 
+                            class="img-fluid w-100 object-fit-cover" 
+                            style="height: 300px;" 
+                            alt="Recipe Image">
+                    </div>
+                        <small class="text-muted mt-2 d-block">Final dish presentation</small>
+                    </div>
+                 </div>
+                {% endif %}
+
+            {% else %}
+            {% if not request.user.subscription.is_active %}
+            <div class="alert alert-warning">
+                <i class="bi bi-lock-fill me-2"></i>
+                Please subscribe to access premium video and images for this recipe.
+            </div>
+            {% endif %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-4">
+                            <h4 class="text-primary mb-3">Ingredients</h4>
+                            <div class="bg-light p-3 rounded">
+                                {{ recipe.ingredients|safe }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-4">
+                            <h4 class="text-primary mb-3">Instructions</h4>
+                            <div class="bg-light p-3 rounded">
+                                {{ recipe.instructions|safe }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            {% else %}
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                No recipe available for this food.
+            </div>
+        {% endif %}
+        </div>
+    </div>
+
+    <!-- Comments Section -->
+    <div class="card border-0 shadow-sm mt-5">
+        <div class="card-body">
+            <h3 class="card-title mb-4">Comments</h3>
+            
+            <!-- Comment Form -->
+            <form class="mb-4" action="" method="post">
+                {% csrf_token %}
+                <div class="input-group">
+                    <input name="comment" type="text" class="form-control form-control-lg" 
+                           placeholder="Share your comment...">
+                    <button class="btn btn-warning btn-lg" type="submit">Comment</button>
+                </div>
+            </form>
+
+            <!-- Comments Display -->
+            <div class="row g-4">
+                {% for feedback in feedbacks %}
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-2">
+                                <strong class="me-auto">{{ request.user.username }}</strong>
+                            </div>
+                            <p class="card-text">{{ feedback.comment }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% if forloop.counter|divisibleby:2 %}
+                    </div><div class="row g-4">
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

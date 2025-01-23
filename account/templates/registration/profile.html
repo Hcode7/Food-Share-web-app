@@ -1,0 +1,123 @@
+{% extends 'pages/base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+    <!-- Search Bar -->
+    <form method="get" class="form-inline mb-5">
+        <div class="input-group w-50 mx-auto">
+            <input name="search" value="{{ search }}" class="form-control" type="search" placeholder="Search for recipes..." aria-label="Search">
+            <div class="input-group-append">
+                <button class="btn btn-outline-success" type="submit">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+        </div>
+    </form>
+    {% if not request.user.subscription.is_active %}
+        <div class="premium-banner p-4 mb-5 text-center bg-gradient rounded-lg shadow-lg">
+            <div class="premium-content">
+                <h3 class="text-primary mb-3">🌟 Unlock Premium Features!</h3>
+                <p class="lead mb-4">Get exclusive access to premium recipes, advanced features, and more.</p>
+                <a href="{% url 'subscription_page' %}" class="btn btn-lg btn-primary pulse-button">
+                    <i class="fas fa-crown mr-2"></i>Upgrade to Premium
+                </a>
+            </div>
+            <style>
+                .premium-banner {
+                    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+                    border: 2px solid #dee2e6;
+                }
+                .premium-banner:hover {
+                    transform: translateY(-2px);
+                    transition: transform 0.3s ease;
+                }
+                .pulse-button {
+                    animation: pulse 2s infinite;
+                    box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7);
+                }
+                @keyframes pulse {
+                    0% {
+                        transform: scale(1);
+                        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7);
+                    }
+                    70% {
+                        transform: scale(1.05);
+                        box-shadow: 0 0 0 10px rgba(0, 123, 255, 0);
+                    }
+                    100% {
+                        transform: scale(1);
+                        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0);
+                    }
+                }
+            </style>
+        </div>
+    {% endif %}
+    <!-- Profile Header -->
+    <div class="profile-header mb-4">
+        <div class="d-flex align-items-center justify-content-between">
+            <h2 class="mb-0">Your Posts</h2>
+            <a class="btn btn-danger" href="{% url 'logout' %}">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </div>
+
+    <!-- Food Grid -->
+    <div class="row">
+        {% for food in foods %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm hover-shadow">
+                    <a href="{% url 'food_detail' food.slug %}" class="food-image-link">
+                        <img src="{{ food.thumbnail.url }}" alt="{{ food.title }}" class="card-img-top" style="height: 200px; object-fit: cover;">
+                    </a>
+                    <div class="card-body">
+                        <div class="card-title">
+                            <a href="{% url 'food_detail' food.slug %}" class="text-decoration-none">
+                                <h4 class="text-dark mb-3">{{ food.title }}</h4>
+                            </a>
+                        </div>
+                        {% if request.user %}
+                            <div class="d-flex justify-content-between mt-3">
+                                <a class="btn btn-danger btn-sm" href="{% url 'delete_food' food.slug %}">
+                                    <i class="fas fa-trash"></i> Delete
+                                </a>
+                                <a class="btn btn-primary btn-sm" href="{% url 'update_food' food.slug %}">
+                                    <i class="fas fa-edit"></i> Update
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .hover-shadow:hover {
+        transform: translateY(-5px);
+        transition: transform 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+    }
+    
+    .food-image-link {
+        overflow: hidden;
+        display: block;
+    }
+    
+    .food-image-link img {
+        transition: transform 0.3s ease;
+    }
+    
+    .food-image-link:hover img {
+        transform: scale(1.05);
+    }
+    
+    .profile-header {
+        border-bottom: 2px solid #eee;
+        padding-bottom: 1rem;
+    }
+</style>
+
+{% endblock content %}

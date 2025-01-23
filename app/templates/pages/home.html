@@ -1,0 +1,91 @@
+{% extends 'pages/base.html' %}
+{% load static %}
+{% block content %}
+
+<!-- Hero Section -->
+<div class="container-fluid bg-light py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <h1 class="display-4 fw-bold mb-4">Welcome to FoodShare</h1>
+                <p class="lead mb-4">Your one-stop platform for fresh and healthy food options. Join us in our mission to share quality food and happiness.</p>
+                <a href="{% url 'food_list' %}" class="btn btn-primary btn-lg">Learn More</a>
+            </div>
+            <div class="col-lg-6">
+                {% if best_food %}
+                    {% for food in best_food %}
+                        <div class="card shadow-sm border-0 h-100">
+                            <div class="position-absolute top-0 end-0 m-3">
+                                <span class="badge bg-primary">Most Liked</span>
+                            </div>
+                            <a href="{% url 'food_detail' food.slug %}">
+                                <img src="{{ food.thumbnail.url }}" class="card-img-top" alt="{{ food.title }}" style="height: 300px; object-fit: cover;">
+                            </a>
+                            <div class="card-body">
+                                <h3 class="card-title h4">
+                                    <a href="{% url 'food_detail' food.slug %}" class="text-decoration-none text-dark">
+                                        {{ food.title }}
+                                    </a>
+                                </h3>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search Section -->
+<div class="container py-5">
+    <form method="get" class="row justify-content-center mb-5">
+        <div class="col-md-8 col-lg-6">
+            <div class="input-group">
+                <input name="search" value="{{ search }}" class="form-control form-control-lg" type="search" placeholder="Search for food..." aria-label="Search">
+                <button class="btn btn-primary" type="submit">
+                    <i class="bi bi-search"></i> Search
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Food Cards Grid -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for food in foods %}
+            <div class="col">
+                <div class="card h-100 shadow-sm hover-shadow">
+                    <a href="{% url 'food_detail' food.slug %}" class="text-decoration-none">
+                        <img src="{{ food.thumbnail.url }}" class="card-img-top" alt="{{ food.title }}" style="height: 200px; object-fit: cover;">
+                    </a>
+                    <div class="card-body">
+                        <h3 class="card-title h5">
+                            <a href="{% url 'food_detail' food.slug %}" class="text-decoration-none text-dark">
+                                {{ food.title }}
+                            </a>
+                        </h3>
+                        <p class="card-text text-muted">{{ food.description|truncatewords:20 }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <form action="{% url 'likes' food.slug %}" method="post" class="d-inline">
+                                {% csrf_token %}
+                                {% if user in food.likes.all %}
+                                    <button class="btn btn-sm btn-danger" type="submit">
+                                        <i class="bi bi-heart-fill"></i> {{ food.likes.count }}
+                                    </button>
+                                {% else %}
+                                    <button class="btn btn-sm btn-outline-danger" type="submit">
+                                        <i class="bi bi-heart"></i> {{ food.likes.count }}
+                                    </button>
+                                {% endif %}
+                            </form>
+                            <small class="text-muted">
+                                <i class="bi bi-clock"></i> {{ food.created_at|timesince }} ago
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock content %}

@@ -1,0 +1,212 @@
+{% extends 'pages/base.html' %}
+
+{% block content %}
+<div class="container-fluid py-5">
+    <div class="row">
+        
+        <!-- Sidebar Filters -->
+        <div class="col-lg-3">
+            <div class="card shadow-sm">
+                <form action="{% url 'food_list' %}" method="get">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Filters</h5>
+                    
+                    <!-- Categories -->
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-3">Categories</h6>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="breakfast" name="category" value="Breakfast">
+                            <label class="form-check-label" for="breakfast">
+                                Breakfast
+                            </label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="lunch", name="category" value="Lunch">
+                            <label class="form-check-label" for="lunch">
+                                Lunch
+                            </label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="dinner" name="category" value="Dinner">
+                            <label class="form-check-label" for="dinner">
+                                Dinner
+                            </label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="desserts" name="category" value="Desserts">
+                            <label class="form-check-label" for="desserts">
+                                Desserts
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Cuisine Type -->
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-3">Cuisine</h6>
+                        <form method="get" action="">
+                            <select class="form-select" name="cuisine" onchange="this.form.submit()">
+                                <option value="" {% if not selected_cuisine %}selected{% endif %}>All Cuisines</option>
+                                {% for cuisine in cuisines %}
+                                    <option value="{{ cuisine.name }}" {% if selected_cuisine == cuisine.name %}selected{% endif %}>
+                                        {{ cuisine.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </form>
+                    </div>
+                    
+
+                    <!-- Dietary Restrictions -->
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-3">Dietary Restrictions</h6>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="vegetarian">
+                            <label class="form-check-label" for="vegetarian">
+                                Vegetarian
+                            </label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="vegan">
+                            <label class="form-check-label" for="vegan">
+                                Vegan
+                            </label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="glutenFree">
+                            <label class="form-check-label" for="glutenFree">
+                                Gluten Free
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Cooking Time -->
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-3">Cooking Time</h6>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="cookingTime" id="quick">
+                            <label class="form-check-label" for="quick">
+                                Quick (< 30 mins)
+                            </label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="cookingTime" id="medium">
+                            <label class="form-check-label" for="medium">
+                                Medium (30-60 mins)
+                            </label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="cookingTime" id="long">
+                            <label class="form-check-label" for="long">
+                                Long (> 60 mins)
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Apply Filters Button -->
+                    <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+                </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <!-- Search Bar -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <form class="d-flex gap-2">
+                        <input class="form-control form-control-lg" type="search" name="search" value="{{ search }}" placeholder="Search recipes..." aria-label="Search">
+                        <button class="btn btn-primary btn-lg" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Sort Options -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <span class="text-muted">Showing {{ foods|length }} results</span>
+                </div>
+                <div class="d-flex gap-2">
+                    <select class="form-select">
+                        <option selected>Sort by</option>
+                        <option>Most Popular</option>
+                        <option>Newest First</option>
+                        <option>Oldest First</option>
+                    </select>
+                </div>
+            </div>
+
+
+            <!-- Food Grid -->
+            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+                {% if foods %}
+                {% for food in foods %}
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        <div class="position-relative">
+                            <a href="{% url 'food_detail' food.slug %}">
+                                <img src="{{ food.thumbnail.url }}" class="card-img-top" alt="{{ food.title }}" 
+                                     style="height: 200px; object-fit: cover;">
+                            </a>
+                            {% if food.is_premium %}
+                            <div class="position-absolute top-0 end-0 m-2">
+                                <span class="badge bg-warning">
+                                    <i class="bi bi-star-fill"></i> Premium
+                                </span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">
+                                <a href="{% url 'food_detail' food.slug %}" class="text-decoration-none text-dark">
+                                    {{ food.title }}
+                                </a>
+                            </h5>
+                            <p class="card-text text-muted">{{ food.description|truncatewords:15 }}</p>
+                        </div>
+                        <div class="card-footer bg-white border-top-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <form action="{% url 'likes' food.slug %}" method="post" class="d-inline">
+                                    {% csrf_token %}
+                                    {% if user in food.likes.all %}
+                                        <button class="btn btn-sm btn-danger">
+                                            <i class="bi bi-heart-fill"></i> {{ food.likes.count }}
+                                        </button>
+                                    {% else %}
+                                        <button class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-heart"></i> {{ food.likes.count }}
+                                        </button>
+                                    {% endif %}
+                                </form>
+                                <small class="text-muted">
+                                    <i class="bi bi-clock"></i> {{ food.created_at|timesince }} ago
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% endif %}
+                
+            </div>
+
+            <!-- Pagination -->
+            <nav class="mt-5">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1">Previous</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+{% endblock content %}
